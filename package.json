@@ -1,0 +1,25 @@
+{
+  "name": "contador-atletismo",
+  "version": "1.0.0",
+  "description": "Contador de Atletismo - Herramienta de entrenamiento con cronómetro, temporizador, contador de rondas e intervalos HIIT",
+  "main": "index.html",
+  "scripts": {
+    "deploy": "gh-pages -d .",
+    "predeploy": "echo 'Deploying to GitHub Pages...'"
+  },
+  "keywords": [
+    "atletismo",
+    "cronómetro",
+    "temporizador",
+    "hiit",
+    "entrenamiento",
+    "fitness",
+    "timer"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "gh-pages": "^6.1.1"
+  },
+  "homepage": "https://username.github.io/contador"
+}
