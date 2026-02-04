@@ -1,25 +1,20 @@
 {
   "name": "contador-atletismo",
   "version": "1.0.0",
-  "description": "Contador de Atletismo - Herramienta de entrenamiento con cronómetro, temporizador, contador de rondas e intervalos HIIT",
-  "main": "index.html",
+  "description": "Contador de Atletismo - Herramienta de entrenamiento con Vue 3",
+  "type": "module",
   "scripts": {
-    "deploy": "gh-pages -d .",
-    "predeploy": "echo 'Deploying to GitHub Pages...'"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "deploy": "npm run build && gh-pages -d dist"
   },
-  "keywords": [
-    "atletismo",
-    "cronómetro",
-    "temporizador",
-    "hiit",
-    "entrenamiento",
-    "fitness",
-    "timer"
-  ],
-  "author": "",
-  "license": "MIT",
+  "dependencies": {
+    "vue": "^3.4.21"
+  },
   "devDependencies": {
-    "gh-pages": "^6.1.1"
-  },
-  "homepage": "https://username.github.io/contador"
+    "@vitejs/plugin-vue": "^5.0.4",
+    "gh-pages": "^6.1.1",
+    "vite": "^5.2.0"
+  }
 }
