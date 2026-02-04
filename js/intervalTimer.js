@@ -191,17 +191,17 @@ class IntervalTimer extends CountdownTimer {
             }
         });
         
-        // Setup callbacks
-        this.onTick = () => updateTimerDisplay(this);
+        // Setup callbacks - solo actualizar display en tick, re-render en cambios de estado
+        this.onTick = () => updateTimerDisplay(this, false);
         this.onStart = () => {
-            updateTimerDisplay(this);
+            updateTimerDisplay(this, true);
             AudioSystem.playIntervalSwitch();
         };
-        this.onPause = () => updateTimerDisplay(this);
-        this.onResume = () => updateTimerDisplay(this);
-        this.onReset = () => updateTimerDisplay(this);
+        this.onPause = () => updateTimerDisplay(this, true);
+        this.onResume = () => updateTimerDisplay(this, true);
+        this.onReset = () => updateTimerDisplay(this, true);
         this.onFinish = () => {
-            updateTimerDisplay(this);
+            updateTimerDisplay(this, true);
             AudioSystem.playTimerEnd();
         };
         

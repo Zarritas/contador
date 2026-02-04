@@ -116,7 +116,7 @@ const App = {
                     } else {
                         firstTimer.start();
                     }
-                    updateTimerDisplay(firstTimer);
+                    updateTimerDisplay(firstTimer, true);
                 }
             }
         });
@@ -265,13 +265,57 @@ const App = {
 };
 
 // Global helper function to update timer display
-function updateTimerDisplay(timer) {
+// fullRender: true = re-render completo (cambios de estado), false = solo actualizar tiempo
+function updateTimerDisplay(timer, fullRender = true) {
     const card = document.getElementById(`timer-${timer.id}`);
     if (!card) return;
     
-    // Replace the card with updated render
-    const newCard = timer.render();
-    card.replaceWith(newCard);
+    if (fullRender) {
+        // Re-render completo para cambios de estado (start, pause, reset)
+        const newCard = timer.render();
+        card.replaceWith(newCard);
+    } else {
+        // Solo actualizar el display de tiempo sin re-renderizar
+        const display = card.querySelector('.timer-display');
+        if (display) {
+            display.textContent = timer.getFormattedTime();
+            // Actualizar clases de estado
+            display.className = `timer-display ${timer.state}`;
+        }
+        
+        // Para intervalos, actualizar también la fase y progreso
+        if (timer.type === 'interval') {
+            const phaseValue = card.querySelector('.interval-phase-value');
+            if (phaseValue) {
+                phaseValue.textContent = timer.getPhaseLabel();
+                phaseValue.className = `interval-phase-value ${timer.phase}`;
+            }
+            
+            const roundInfo = card.querySelector('.timer-info-item span:last-child');
+            if (roundInfo) {
+                roundInfo.textContent = `Ronda ${timer.currentRound} de ${timer.totalRounds}`;
+            }
+            
+            const progressBar = card.querySelector('.interval-progress-bar');
+            if (progressBar && timer.state !== 'idle') {
+                const totalTime = (timer.workDuration + timer.restDuration) * timer.totalRounds;
+                const elapsedTotal = ((timer.currentRound - 1) * (timer.workDuration + timer.restDuration)) + 
+                                     (timer.phase === 'work' ? 0 : timer.workDuration) + 
+                                     (timer.duration - timer.remainingTime);
+                const progressPercent = totalTime > 0 ? (elapsedTotal / totalTime) * 100 : 0;
+                progressBar.style.width = `${Math.min(progressPercent, 100)}%`;
+            }
+        }
+        
+        // Para countdown, actualizar display principal
+        if (timer.type === 'countdown') {
+            const display = card.querySelector('.timer-display');
+            if (display) {
+                display.textContent = timer.getFormattedTime();
+                display.className = `timer-display ${timer.state}`;
+            }
+        }
+    }
 }
 
 // Initialize app when DOM is ready
