@@ -36,7 +36,8 @@ export function useIntervalTimer(options = {}) {
 
   const totalProgress = computed(() => {
     if (isIdle.value) return 0
-    const totalTime = (workDuration.value + restDuration.value) * totalRounds.value
+    // La última ronda no incluye fase de descanso
+    const totalTime = workDuration.value * totalRounds.value + restDuration.value * (totalRounds.value - 1)
     const currentPhaseTime = phase.value === INTERVAL_PHASES.WORK ? workDuration.value : restDuration.value
     const elapsedInPhase = currentPhaseTime - remainingTime.value
     const completedRoundsTime = (currentRound.value - 1) * (workDuration.value + restDuration.value)

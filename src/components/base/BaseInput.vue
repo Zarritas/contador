@@ -48,11 +48,11 @@ const emit = defineEmits(['update:modelValue', 'change'])
 
 const handleInput = (event) => {
   let value = event.target.value
-  
-  if (props.type === 'number') {
+
+  if (props.type === 'number' || props.type === 'range') {
     value = value === '' ? '' : Number(value)
   }
-  
+
   emit('update:modelValue', value)
 }
 

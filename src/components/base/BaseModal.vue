@@ -67,7 +67,6 @@ watch(() => props.isOpen, (isOpen) => {
   if (isOpen) {
     previousActiveElement = document.activeElement
     nextTick(() => {
-      // Enfocar el primer elemento interactivo del modal
       if (contentRef.value) {
         const firstFocusable = contentRef.value.querySelector(
           'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
@@ -76,13 +75,12 @@ watch(() => props.isOpen, (isOpen) => {
       }
     })
   } else {
-    // Restaurar foco al cerrar
     if (previousActiveElement) {
       previousActiveElement.focus()
       previousActiveElement = null
     }
   }
-})
+}, { immediate: true })
 
 onUnmounted(() => {
   if (previousActiveElement) {
@@ -98,10 +96,9 @@ onUnmounted(() => {
       <div
         v-if="isOpen"
         class="base-modal"
-        @click.self="handleOverlayClick"
         @keydown="handleKeydown"
       >
-        <div class="base-modal__overlay"></div>
+        <div class="base-modal__overlay" @click="handleOverlayClick"></div>
         <div
           ref="contentRef"
           class="base-modal__content"

@@ -28,7 +28,7 @@ const playBeep = (frequency = 800, duration = 200, type = 'sine') => {
   oscillator.frequency.value = frequency
   oscillator.type = type
   
-  const volume = (settings.value.volume || 80) / 100
+  const volume = (settings.value.volume ?? 80) / 100
   gainNode.gain.setValueAtTime(volume * 0.3, audioContext.currentTime)
   gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration / 1000)
   

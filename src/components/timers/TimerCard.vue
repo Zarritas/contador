@@ -76,18 +76,20 @@ const handleUpdate = (updates) => {
       </div>
       
       <div class="timer-card__actions">
-        <BaseButton 
-          variant="icon" 
+        <BaseButton
+          variant="icon"
           size="small"
           title="Editar nombre"
+          aria-label="Editar nombre"
           @click="startEditing"
         >
           ✏️
         </BaseButton>
-        <BaseButton 
-          variant="icon" 
+        <BaseButton
+          variant="icon"
           size="small"
           title="Eliminar"
+          aria-label="Eliminar"
           @click="$emit('delete', timer.id)"
         >
           🗑️

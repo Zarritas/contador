@@ -69,6 +69,7 @@ const updateDuration = (minutes) => {
         @change="updateDuration($event)"
         :min="LIMITS.duration.min"
         :max="LIMITS.duration.max"
+        :step="LIMITS.duration.step"
       />
     </div>
     

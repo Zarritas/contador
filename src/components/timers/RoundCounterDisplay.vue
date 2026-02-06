@@ -94,6 +94,7 @@ const updateTarget = (target) => {
         @change="updateStep($event)"
         :min="LIMITS.roundStep.min"
         :max="LIMITS.roundStep.max"
+        :step="LIMITS.roundStep.step"
       />
       
       <BaseInput

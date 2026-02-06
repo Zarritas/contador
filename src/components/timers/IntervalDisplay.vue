@@ -104,8 +104,9 @@ const updateRounds = (rounds) => {
         @change="updateWorkDuration($event)"
         :min="LIMITS.workDuration.min"
         :max="LIMITS.workDuration.max"
+        :step="LIMITS.workDuration.step"
       />
-      
+
       <BaseInput
         type="number"
         label="Descanso (seg)"
@@ -113,6 +114,7 @@ const updateRounds = (rounds) => {
         @change="updateRestDuration($event)"
         :min="LIMITS.restDuration.min"
         :max="LIMITS.restDuration.max"
+        :step="LIMITS.restDuration.step"
       />
       
       <BaseInput
@@ -122,6 +124,7 @@ const updateRounds = (rounds) => {
         @change="updateRounds($event)"
         :min="LIMITS.rounds.min"
         :max="LIMITS.rounds.max"
+        :step="LIMITS.rounds.step"
       />
     </div>
     
