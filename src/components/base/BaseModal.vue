@@ -1,4 +1,7 @@
 <script setup>
+import { ref, watch, nextTick, onUnmounted } from 'vue'
+import BaseButton from './BaseButton.vue'
+
 /**
  * BaseModal - Componente base para todos los modales
  * Props:
@@ -23,6 +26,9 @@ const props = defineProps({
 
 const emit = defineEmits(['close'])
 
+const contentRef = ref(null)
+let previousActiveElement = null
+
 const handleClose = () => {
   emit('close')
 }
@@ -30,18 +36,84 @@ const handleClose = () => {
 const handleOverlayClick = () => {
   emit('close')
 }
+
+const handleKeydown = (e) => {
+  if (e.key === 'Escape') {
+    handleClose()
+    return
+  }
+
+  // Focus trap: Tab y Shift+Tab
+  if (e.key === 'Tab' && contentRef.value) {
+    const focusable = contentRef.value.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    )
+    if (focusable.length === 0) return
+
+    const first = focusable[0]
+    const last = focusable[focusable.length - 1]
+
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault()
+      last.focus()
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault()
+      first.focus()
+    }
+  }
+}
+
+watch(() => props.isOpen, (isOpen) => {
+  if (isOpen) {
+    previousActiveElement = document.activeElement
+    nextTick(() => {
+      // Enfocar el primer elemento interactivo del modal
+      if (contentRef.value) {
+        const firstFocusable = contentRef.value.querySelector(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        )
+        if (firstFocusable) firstFocusable.focus()
+      }
+    })
+  } else {
+    // Restaurar foco al cerrar
+    if (previousActiveElement) {
+      previousActiveElement.focus()
+      previousActiveElement = null
+    }
+  }
+})
+
+onUnmounted(() => {
+  if (previousActiveElement) {
+    previousActiveElement.focus()
+    previousActiveElement = null
+  }
+})
 </script>
 
 <template>
   <Teleport to="body">
     <Transition name="modal">
-      <div v-if="isOpen" class="base-modal" @click.self="handleOverlayClick">
+      <div
+        v-if="isOpen"
+        class="base-modal"
+        @click.self="handleOverlayClick"
+        @keydown="handleKeydown"
+      >
         <div class="base-modal__overlay"></div>
-        <div class="base-modal__content" :style="{ maxWidth }">
+        <div
+          ref="contentRef"
+          class="base-modal__content"
+          role="dialog"
+          aria-modal="true"
+          :aria-label="title || undefined"
+          :style="{ maxWidth }"
+        >
           <header v-if="title" class="base-modal__header">
             <h2 class="base-modal__title">{{ title }}</h2>
-            <BaseButton variant="icon" size="small" @click="handleClose" title="Cerrar">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <BaseButton variant="icon" size="small" @click="handleClose" title="Cerrar" aria-label="Cerrar">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line>
               </svg>
@@ -59,12 +131,6 @@ const handleOverlayClick = () => {
   </Teleport>
 </template>
 
-<script>
-// Importar BaseButton para uso en este componente
-import BaseButton from './BaseButton.vue'
-export { BaseButton }
-</script>
-
 <style scoped>
 .base-modal {
   position: fixed;
@@ -79,7 +145,7 @@ export { BaseButton }
 .base-modal__overlay {
   position: absolute;
   inset: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: var(--color-overlay);
   backdrop-filter: blur(4px);
 }
 

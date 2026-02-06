@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useTimerStore } from './stores/useTimerStore.js'
 import { useStorage } from './composables/useStorage.js'
 import { useAudio } from './composables/useAudio.js'
@@ -23,38 +23,27 @@ const showSettingsModal = ref(false)
 // Initialize
 onMounted(() => {
   setupAudio()
-  
-  // Apply theme
   document.documentElement.setAttribute('data-theme', settings.value.theme)
-  
-  // Request notification permission
+
   if ('Notification' in window && Notification.permission === 'default') {
-    Notification.requestPermission()
+    Notification.requestPermission().catch(() => {})
   }
 })
 
 // Keyboard shortcuts
+const handleKeydown = (e) => {
+  if (e.key === 'Escape') {
+    showAddModal.value = false
+    showSettingsModal.value = false
+  }
+}
+
 onMounted(() => {
-  const handleKeydown = (e) => {
-    // Escape to close modals
-    if (e.key === 'Escape') {
-      showAddModal.value = false
-      showSettingsModal.value = false
-    }
-    
-    // Space to start/pause first timer
-    if (e.key === ' ' && !e.target.matches('input, textarea, button')) {
-      e.preventDefault()
-      // Esta funcionalidad requeriría emitir eventos desde TimerCard
-      // Por simplicidad, la omitimos por ahora
-    }
-  }
-  
   document.addEventListener('keydown', handleKeydown)
-  
-  return () => {
-    document.removeEventListener('keydown', handleKeydown)
-  }
+})
+
+onUnmounted(() => {
+  document.removeEventListener('keydown', handleKeydown)
 })
 
 const handleAddTimer = (type) => {
@@ -126,7 +115,11 @@ const handleClearData = () => {
   --color-border: #e2e8f0;
   --color-success: #22c55e;
   --color-danger: #ef4444;
+  --color-danger-dark: #dc2626;
   --color-warning: #eab308;
+  --color-on-primary: #ffffff;
+  --color-focus-ring: rgba(249, 115, 22, 0.1);
+  --color-overlay: rgba(0, 0, 0, 0.5);
   
   /* Typography */
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -203,16 +196,11 @@ body {
   min-height: 100vh;
 }
 
-#app {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
+#app,
 .app {
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
 }
 
 /* Typography */

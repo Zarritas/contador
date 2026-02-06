@@ -1,4 +1,3 @@
-import { ref } from 'vue'
 import { useStorage } from './useStorage.js'
 
 const { settings } = useStorage()

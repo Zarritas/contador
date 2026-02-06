@@ -1,7 +1,5 @@
 import { ref, computed } from 'vue'
 import { useBaseTimer } from './useBaseTimer.js'
-import { formatTime } from '../../utils/timeFormatters.js'
-import { TIMER_DEFAULTS, TIMER_STATES } from '../../constants/appConstants.js'
 
 /**
  * Composable para Cronómetro (Stopwatch)

@@ -111,7 +111,7 @@ const handleClick = () => {
 }
 
 .base-btn--primary {
-  color: white;
+  color: var(--color-on-primary);
   background-color: var(--color-primary);
   border-color: var(--color-primary);
 }
@@ -122,14 +122,14 @@ const handleClick = () => {
 }
 
 .base-btn--danger {
-  color: white;
+  color: var(--color-on-primary);
   background-color: var(--color-danger);
   border-color: var(--color-danger);
 }
 
 .base-btn--danger:hover:not(:disabled) {
-  background-color: #dc2626;
-  border-color: #dc2626;
+  background-color: var(--color-danger-dark);
+  border-color: var(--color-danger-dark);
 }
 
 .base-btn--icon {

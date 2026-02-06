@@ -1,19 +1,29 @@
-import { ref } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 
 /**
  * Composable para gestionar pantalla completa
  */
 export function useFullscreen() {
-  const isFullscreen = ref(false)
+  const isFullscreen = ref(!!document.fullscreenElement)
+
+  const onFullscreenChange = () => {
+    isFullscreen.value = !!document.fullscreenElement
+  }
+
+  onMounted(() => {
+    document.addEventListener('fullscreenchange', onFullscreenChange)
+  })
+
+  onUnmounted(() => {
+    document.removeEventListener('fullscreenchange', onFullscreenChange)
+  })
 
   const toggleFullscreen = async () => {
     try {
       if (!document.fullscreenElement) {
         await document.documentElement.requestFullscreen()
-        isFullscreen.value = true
       } else {
         await document.exitFullscreen()
-        isFullscreen.value = false
       }
     } catch (err) {
       console.error('Error toggling fullscreen:', err)
@@ -24,17 +34,11 @@ export function useFullscreen() {
     if (document.fullscreenElement) {
       try {
         await document.exitFullscreen()
-        isFullscreen.value = false
       } catch (err) {
         console.error('Error exiting fullscreen:', err)
       }
     }
   }
-
-  // Escuchar cambios de estado
-  document.addEventListener('fullscreenchange', () => {
-    isFullscreen.value = !!document.fullscreenElement
-  })
 
   return {
     isFullscreen,

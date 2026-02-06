@@ -57,7 +57,7 @@ export function useRoundCounter(initialStep = TIMER_DEFAULTS.roundCounter.step) 
    * Establece el objetivo
    */
   const setTarget = (newTarget) => {
-    target.value = newTarget || null
+    target.value = (newTarget != null && newTarget > 0) ? newTarget : null
   }
 
   return {

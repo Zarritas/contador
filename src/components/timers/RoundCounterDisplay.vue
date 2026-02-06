@@ -3,11 +3,15 @@ import { watch } from 'vue'
 import { useRoundCounter } from '../../composables/timers/useRoundCounter.js'
 import { useAudio } from '../../composables/useAudio.js'
 import { useStorage } from '../../composables/useStorage.js'
+import { LIMITS } from '../../constants/appConstants.js'
 import BaseButton from '../base/BaseButton.vue'
 import BaseInput from '../base/BaseInput.vue'
 
 const props = defineProps({
-  timer: Object
+  timer: {
+    type: Object,
+    required: true
+  }
 })
 
 const emit = defineEmits(['update'])
@@ -42,19 +46,21 @@ const updateTarget = (target) => {
 <template>
   <div class="round-counter-display">
     <div class="counter-controls">
-      <BaseButton 
-        class="counter-btn" 
+      <BaseButton
+        class="counter-btn"
+        aria-label="Decrementar"
         @click="counter.decrement"
       >
         −
       </BaseButton>
-      
+
       <div class="counter-value">
         {{ counter.count.value }}
       </div>
-      
-      <BaseButton 
-        class="counter-btn" 
+
+      <BaseButton
+        class="counter-btn"
+        aria-label="Incrementar"
         @click="counter.increment"
       >
         +
@@ -63,9 +69,16 @@ const updateTarget = (target) => {
     
     <!-- Barra de progreso -->
     <div v-if="counter.hasTarget.value" class="progress-container">
-      <div class="progress-bar">
-        <div 
-          class="progress-fill" 
+      <div
+        class="progress-bar"
+        role="progressbar"
+        :aria-valuenow="counter.count.value"
+        :aria-valuemin="0"
+        :aria-valuemax="counter.target.value"
+        aria-label="Progreso hacia la meta"
+      >
+        <div
+          class="progress-fill"
           :style="{ width: counter.progress.value + '%' }"
         ></div>
       </div>
@@ -78,9 +91,9 @@ const updateTarget = (target) => {
         type="number"
         label="Incremento"
         :model-value="counter.step.value"
-        @change="updateStep(parseInt($event))"
-        :min="1"
-        :max="10"
+        @change="updateStep($event)"
+        :min="LIMITS.roundStep.min"
+        :max="LIMITS.roundStep.max"
       />
       
       <BaseInput

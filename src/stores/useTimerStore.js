@@ -14,8 +14,13 @@ let isInitialized = false
  */
 const createTimer = (type, settings = {}) => {
   const typeConfig = TIMER_TYPES.find(t => t.type === type)
+  if (!typeConfig) {
+    console.error(`Timer type "${type}" not found`)
+    return null
+  }
+
   const typeCount = timers.value.filter(t => t.type === type).length
-  
+
   const baseTimer = {
     id: generateTimerId(),
     type,
@@ -23,21 +28,22 @@ const createTimer = (type, settings = {}) => {
     createdAt: Date.now()
   }
 
-  // Configuración específica por tipo
   switch (type) {
     case 'countdown':
       return {
         ...baseTimer,
-        duration: settings.defaultDuration * 60000 || TIMER_DEFAULTS.countdown
+        duration: settings.defaultDuration
+          ? settings.defaultDuration * 60000
+          : TIMER_DEFAULTS.countdown
       }
-    
+
     case 'rounds':
       return {
         ...baseTimer,
-        step: settings.roundStep || TIMER_DEFAULTS.roundCounter.step,
+        step: settings.roundStep ?? TIMER_DEFAULTS.roundCounter.step,
         target: null
       }
-    
+
     case 'interval':
       return {
         ...baseTimer,
@@ -45,7 +51,7 @@ const createTimer = (type, settings = {}) => {
         restDuration: TIMER_DEFAULTS.interval.rest,
         rounds: TIMER_DEFAULTS.interval.rounds
       }
-    
+
     case 'stopwatch':
     default:
       return baseTimer
@@ -80,6 +86,7 @@ export function useTimerStore() {
   // Acciones
   const addTimer = (type, settings = {}) => {
     const timer = createTimer(type, settings)
+    if (!timer) return null
     timers.value.push(timer)
     saveTimers()
     return timer
@@ -104,7 +111,11 @@ export function useTimerStore() {
   }
 
   const saveTimers = () => {
-    localStorage.setItem(STORAGE_KEYS.TIMERS, JSON.stringify(timers.value))
+    try {
+      localStorage.setItem(STORAGE_KEYS.TIMERS, JSON.stringify(timers.value))
+    } catch (e) {
+      console.error('Error saving timers:', e)
+    }
   }
 
   return {

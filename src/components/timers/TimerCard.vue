@@ -1,10 +1,11 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed, nextTick } from 'vue'
 import BaseButton from '../base/BaseButton.vue'
 import StopwatchDisplay from './StopwatchDisplay.vue'
 import CountdownDisplay from './CountdownDisplay.vue'
 import RoundCounterDisplay from './RoundCounterDisplay.vue'
 import IntervalDisplay from './IntervalDisplay.vue'
+import { TIMER_TYPES } from '../../constants/appConstants.js'
 
 const props = defineProps({
   timer: {
@@ -17,30 +18,19 @@ const emit = defineEmits(['delete', 'update'])
 
 const isEditing = ref(false)
 const editedName = ref(props.timer.name)
+const nameInput = ref(null)
 
-const getIcon = () => {
-  const icons = {
-    stopwatch: '⏱️',
-    countdown: '⏲️',
-    rounds: '🔢',
-    interval: '🔁'
-  }
-  return icons[props.timer.type] || '⏱️'
-}
-
-const getTypeLabel = () => {
-  const labels = {
-    stopwatch: 'Cronómetro',
-    countdown: 'Temporizador',
-    rounds: 'Contador',
-    interval: 'HIIT'
-  }
-  return labels[props.timer.type] || 'Timer'
-}
+const timerIcon = computed(() => {
+  const config = TIMER_TYPES.find(t => t.type === props.timer.type)
+  return config?.icon || '⏱️'
+})
 
 const startEditing = () => {
   editedName.value = props.timer.name
   isEditing.value = true
+  nextTick(() => {
+    if (nameInput.value) nameInput.value.focus()
+  })
 }
 
 const saveName = () => {
@@ -65,16 +55,17 @@ const handleUpdate = (updates) => {
     <!-- Header -->
     <div class="timer-card__header">
       <div class="timer-card__title">
-        <span class="timer-card__icon">{{ getIcon() }}</span>
-        
+        <span class="timer-card__icon" aria-hidden="true">{{ timerIcon }}</span>
+
         <template v-if="isEditing">
           <input
+            ref="nameInput"
             v-model="editedName"
             class="timer-card__name-input"
+            aria-label="Nombre del timer"
             @keyup.enter="saveName"
             @keyup.esc="cancelEdit"
             @blur="saveName"
-            ref="nameInput"
           />
         </template>
         <template v-else>
@@ -198,7 +189,7 @@ const handleUpdate = (updates) => {
 
 .timer-card__name-input:focus {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
 }
 
 .timer-card__actions {

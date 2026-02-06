@@ -5,16 +5,26 @@ import { TIMER_DEFAULTS, TIMER_STATES } from '../../constants/appConstants.js'
 
 /**
  * Composable para Temporizador con cuenta regresiva (Countdown)
- * 
+ *
  * @param {number} initialDuration - Duración inicial en ms (default: 5 min)
  * @returns {Object} - Estado y métodos del temporizador
  */
 export function useCountdown(initialDuration = TIMER_DEFAULTS.countdown) {
-  const base = useBaseTimer()
-  
-  // Estado
+  // Estado específico
   const duration = ref(initialDuration)
   const remainingTime = ref(initialDuration)
+
+  // Tick personalizado que actualiza remainingTime
+  const onTick = () => {
+    base.elapsedTime.value = Date.now() - base.startTime.value
+    remainingTime.value = Math.max(0, duration.value - base.elapsedTime.value)
+
+    if (remainingTime.value <= 0) {
+      base.finish()
+    }
+  }
+
+  const base = useBaseTimer({ onTick })
 
   // Getters
   const formattedTime = computed(() => formatTime(remainingTime.value))
@@ -24,26 +34,15 @@ export function useCountdown(initialDuration = TIMER_DEFAULTS.countdown) {
   })
 
   /**
-   * Tick específico para countdown
-   */
-  const tick = () => {
-    base.elapsedTime.value = Date.now() - base.startTime.value
-    remainingTime.value = Math.max(0, duration.value - base.elapsedTime.value)
-    
-    if (remainingTime.value <= 0) {
-      base.finish()
-    }
-  }
-
-  /**
    * Inicia el temporizador
    */
   const start = () => {
     if (base.isRunning.value) return
-    
+
     base.state.value = TIMER_STATES.RUNNING
     base.startTime.value = Date.now()
-    base.intervalId = setInterval(tick, 100)
+    base.elapsedTime.value = 0
+    base.startInterval()
   }
 
   /**
@@ -71,13 +70,13 @@ export function useCountdown(initialDuration = TIMER_DEFAULTS.countdown) {
     isPaused: base.isPaused,
     isIdle: base.isIdle,
     isFinished: base.isFinished,
-    
+
     // Estado específico
     duration,
     remainingTime,
     formattedTime,
     progress,
-    
+
     // Métodos
     start,
     pause: base.pause,

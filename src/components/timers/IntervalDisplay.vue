@@ -2,11 +2,15 @@
 import { watch } from 'vue'
 import { useIntervalTimer } from '../../composables/timers/useIntervalTimer.js'
 import { useAudio } from '../../composables/useAudio.js'
+import { LIMITS } from '../../constants/appConstants.js'
 import BaseButton from '../base/BaseButton.vue'
 import BaseInput from '../base/BaseInput.vue'
 
 const props = defineProps({
-  timer: Object
+  timer: {
+    type: Object,
+    required: true
+  }
 })
 
 const emit = defineEmits(['update'])
@@ -59,7 +63,7 @@ const updateRounds = (rounds) => {
 <template>
   <div class="interval-display">
     <!-- Fase actual -->
-    <div v-if="!interval.isIdle.value" class="phase-indicator">
+    <div v-if="!interval.isIdle.value" class="phase-indicator" aria-live="polite">
       <span class="phase-label">Fase</span>
       <span :class="['phase-value', interval.phase.value]">
         {{ interval.phaseLabel.value }}
@@ -73,9 +77,16 @@ const updateRounds = (rounds) => {
     
     <!-- Progreso total -->
     <div v-if="!interval.isIdle.value" class="progress-container">
-      <div class="progress-bar">
-        <div 
-          class="progress-fill" 
+      <div
+        class="progress-bar"
+        role="progressbar"
+        :aria-valuenow="Math.round(interval.totalProgress.value)"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        aria-label="Progreso total del intervalo"
+      >
+        <div
+          class="progress-fill"
           :style="{ width: interval.totalProgress.value + '%' }"
         ></div>
       </div>
@@ -90,27 +101,27 @@ const updateRounds = (rounds) => {
         type="number"
         label="Trabajo (seg)"
         :model-value="interval.workDuration.value / 1000"
-        @change="updateWorkDuration(parseInt($event))"
-        :min="5"
-        :max="300"
+        @change="updateWorkDuration($event)"
+        :min="LIMITS.workDuration.min"
+        :max="LIMITS.workDuration.max"
       />
       
       <BaseInput
         type="number"
         label="Descanso (seg)"
         :model-value="interval.restDuration.value / 1000"
-        @change="updateRestDuration(parseInt($event))"
-        :min="5"
-        :max="300"
+        @change="updateRestDuration($event)"
+        :min="LIMITS.restDuration.min"
+        :max="LIMITS.restDuration.max"
       />
       
       <BaseInput
         type="number"
         label="Rondas"
         :model-value="interval.totalRounds.value"
-        @change="updateRounds(parseInt($event))"
-        :min="1"
-        :max="50"
+        @change="updateRounds($event)"
+        :min="LIMITS.rounds.min"
+        :max="LIMITS.rounds.max"
       />
     </div>
     

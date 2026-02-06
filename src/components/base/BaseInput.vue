@@ -57,7 +57,11 @@ const handleInput = (event) => {
 }
 
 const handleChange = (event) => {
-  emit('change', event.target.value)
+  let value = event.target.value
+  if (props.type === 'number' || props.type === 'range') {
+    value = value === '' ? '' : Number(value)
+  }
+  emit('change', value)
 }
 </script>
 
@@ -107,7 +111,7 @@ const handleChange = (event) => {
 .base-input:focus {
   outline: none;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
 }
 
 .base-input:disabled {

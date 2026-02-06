@@ -3,11 +3,15 @@ import { watch } from 'vue'
 import { useCountdown } from '../../composables/timers/useCountdown.js'
 import { useAudio } from '../../composables/useAudio.js'
 import { useStorage } from '../../composables/useStorage.js'
+import { LIMITS } from '../../constants/appConstants.js'
 import BaseButton from '../base/BaseButton.vue'
 import BaseInput from '../base/BaseInput.vue'
 
 const props = defineProps({
-  timer: Object
+  timer: {
+    type: Object,
+    required: true
+  }
 })
 
 const emit = defineEmits(['update'])
@@ -63,8 +67,8 @@ const updateDuration = (minutes) => {
         label="Duración (minutos)"
         :model-value="countdown.duration.value / 60000"
         @change="updateDuration($event)"
-        :min="1"
-        :max="120"
+        :min="LIMITS.duration.min"
+        :max="LIMITS.duration.max"
       />
     </div>
     

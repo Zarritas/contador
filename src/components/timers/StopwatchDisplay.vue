@@ -7,18 +7,16 @@ import { useAudio } from '../../composables/useAudio.js'
 import BaseButton from '../base/BaseButton.vue'
 
 const props = defineProps({
-  timer: Object
+  timer: {
+    type: Object,
+    required: true
+  }
 })
 
 const emit = defineEmits(['update'])
 
 const { playIntervalSwitch } = useAudio()
 const stopwatch = useStopwatch()
-
-// Sincronizar nombre
-const updateName = (newName) => {
-  emit('update', { name: newName })
-}
 
 // Observar estado para sonidos
 watch(() => stopwatch.isRunning.value, (isRunning) => {

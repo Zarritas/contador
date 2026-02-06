@@ -21,17 +21,26 @@ const emit = defineEmits(['update:modelValue'])
 const handleToggle = () => {
   emit('update:modelValue', !props.modelValue)
 }
+
+const handleKeydown = (e) => {
+  if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault()
+    handleToggle()
+  }
+}
 </script>
 
 <template>
-  <label class="base-toggle" @click.prevent="handleToggle">
+  <label
+    class="base-toggle"
+    role="switch"
+    :aria-checked="modelValue"
+    tabindex="0"
+    @click="handleToggle"
+    @keydown="handleKeydown"
+  >
     <span class="base-toggle__label">{{ label }}</span>
-    <input
-      type="checkbox"
-      :checked="modelValue"
-      class="base-toggle__input"
-    />
-    <span class="base-toggle__switch"></span>
+    <span class="base-toggle__switch" aria-hidden="true"></span>
   </label>
 </template>
 
@@ -44,12 +53,14 @@ const handleToggle = () => {
   padding: var(--spacing-3) 0;
 }
 
-.base-toggle__label {
-  font-weight: 500;
+.base-toggle:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
 }
 
-.base-toggle__input {
-  display: none;
+.base-toggle__label {
+  font-weight: 500;
 }
 
 .base-toggle__switch {
@@ -59,6 +70,7 @@ const handleToggle = () => {
   border-radius: var(--radius-full);
   position: relative;
   transition: background-color var(--transition-fast);
+  flex-shrink: 0;
 }
 
 .base-toggle__switch::after {
@@ -68,17 +80,17 @@ const handleToggle = () => {
   left: 2px;
   width: 20px;
   height: 20px;
-  background-color: white;
+  background-color: var(--color-surface);
   border-radius: 50%;
   transition: transform var(--transition-fast);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-sm);
 }
 
-.base-toggle__input:checked + .base-toggle__switch {
+[aria-checked="true"] .base-toggle__switch {
   background-color: var(--color-primary);
 }
 
-.base-toggle__input:checked + .base-toggle__switch::after {
+[aria-checked="true"] .base-toggle__switch::after {
   transform: translateX(24px);
 }
 </style>
