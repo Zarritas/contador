@@ -13,7 +13,7 @@ const props = defineProps({
 const emit = defineEmits(['update'])
 
 const { settings } = useStorage()
-const { playIntervalSwitch, playTimerEnd } = useAudio()
+const { playIntervalSwitch, playTimerEnd, vibrate } = useAudio()
 
 const countdown = useCountdown(props.timer.duration)
 
@@ -30,7 +30,10 @@ watch(() => countdown.isRunning.value, (isRunning) => {
 })
 
 watch(() => countdown.isFinished.value, (isFinished) => {
-  if (isFinished) playTimerEnd()
+  if (isFinished) {
+    playTimerEnd()
+    vibrate([100, 50, 100, 50, 200])
+  }
 })
 
 const handleStart = () => {
@@ -41,6 +44,7 @@ const handleStart = () => {
   } else {
     countdown.start()
   }
+  vibrate([50])
 }
 
 const updateDuration = (minutes) => {

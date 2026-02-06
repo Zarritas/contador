@@ -12,7 +12,7 @@ const props = defineProps({
 
 const emit = defineEmits(['update'])
 
-const { playIntervalSwitch } = useAudio()
+const { playIntervalSwitch, vibrate } = useAudio()
 const stopwatch = useStopwatch()
 
 // Sincronizar nombre
@@ -33,6 +33,7 @@ const handleStart = () => {
   } else {
     stopwatch.start()
   }
+  vibrate([50])
 }
 </script>
 

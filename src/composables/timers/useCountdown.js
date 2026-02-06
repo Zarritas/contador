@@ -1,20 +1,31 @@
 import { ref, computed } from 'vue'
 import { useBaseTimer } from './useBaseTimer.js'
 import { formatTime } from '../../utils/timeFormatters.js'
-import { TIMER_DEFAULTS, TIMER_STATES } from '../../constants/appConstants.js'
+import { TIMER_DEFAULTS } from '../../constants/appConstants.js'
 
 /**
  * Composable para Temporizador con cuenta regresiva (Countdown)
- * 
+ * Extiende useBaseTimer con tick personalizado para cuenta regresiva
+ *
  * @param {number} initialDuration - Duración inicial en ms (default: 5 min)
  * @returns {Object} - Estado y métodos del temporizador
  */
 export function useCountdown(initialDuration = TIMER_DEFAULTS.countdown) {
-  const base = useBaseTimer()
-  
   // Estado
   const duration = ref(initialDuration)
   const remainingTime = ref(initialDuration)
+
+  // Tick personalizado: calcula tiempo restante y finaliza al llegar a 0
+  const tick = () => {
+    base.elapsedTime.value = Date.now() - base.startTime.value
+    remainingTime.value = Math.max(0, duration.value - base.elapsedTime.value)
+
+    if (remainingTime.value <= 0) {
+      base.finish()
+    }
+  }
+
+  const base = useBaseTimer(tick)
 
   // Getters
   const formattedTime = computed(() => formatTime(remainingTime.value))
@@ -22,29 +33,6 @@ export function useCountdown(initialDuration = TIMER_DEFAULTS.countdown) {
     if (duration.value === 0) return 0
     return ((duration.value - remainingTime.value) / duration.value) * 100
   })
-
-  /**
-   * Tick específico para countdown
-   */
-  const tick = () => {
-    base.elapsedTime.value = Date.now() - base.startTime.value
-    remainingTime.value = Math.max(0, duration.value - base.elapsedTime.value)
-    
-    if (remainingTime.value <= 0) {
-      base.finish()
-    }
-  }
-
-  /**
-   * Inicia el temporizador
-   */
-  const start = () => {
-    if (base.isRunning.value) return
-    
-    base.state.value = TIMER_STATES.RUNNING
-    base.startTime.value = Date.now()
-    base.intervalId = setInterval(tick, 100)
-  }
 
   /**
    * Resetea el temporizador
@@ -71,15 +59,15 @@ export function useCountdown(initialDuration = TIMER_DEFAULTS.countdown) {
     isPaused: base.isPaused,
     isIdle: base.isIdle,
     isFinished: base.isFinished,
-    
+
     // Estado específico
     duration,
     remainingTime,
     formattedTime,
     progress,
-    
+
     // Métodos
-    start,
+    start: base.start,
     pause: base.pause,
     resume: base.resume,
     reset,

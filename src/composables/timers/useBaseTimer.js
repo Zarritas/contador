@@ -5,10 +5,11 @@ import { TIMER_STATES } from '../../constants/appConstants.js'
 /**
  * Composable base para funcionalidad de timer
  * Proporciona estado, tiempo transcurrido y control básico
- * 
+ *
+ * @param {Function|null} customTick - Tick personalizado para timers derivados (countdown, etc.)
  * @returns {Object} - Estado y métodos del timer base
  */
-export function useBaseTimer() {
+export function useBaseTimer(customTick = null) {
   // Estado
   const state = ref(TIMER_STATES.IDLE)
   const startTime = ref(null)
@@ -20,25 +21,27 @@ export function useBaseTimer() {
   const isPaused = computed(() => state.value === TIMER_STATES.PAUSED)
   const isIdle = computed(() => state.value === TIMER_STATES.IDLE)
   const isFinished = computed(() => state.value === TIMER_STATES.FINISHED)
-  
+
   const formattedTime = computed(() => formatTime(elapsedTime.value))
 
   // Métodos
-  const tick = () => {
+  const defaultTick = () => {
     elapsedTime.value = Date.now() - startTime.value
   }
 
+  const activeTick = customTick || defaultTick
+
   const start = () => {
     if (isRunning.value) return
-    
+
     state.value = TIMER_STATES.RUNNING
     startTime.value = Date.now() - elapsedTime.value
-    intervalId = setInterval(tick, 100)
+    intervalId = setInterval(activeTick, 100)
   }
 
   const pause = () => {
     if (!isRunning.value) return
-    
+
     state.value = TIMER_STATES.PAUSED
     clearInterval(intervalId)
     intervalId = null
@@ -47,10 +50,10 @@ export function useBaseTimer() {
 
   const resume = () => {
     if (!isPaused.value) return
-    
+
     state.value = TIMER_STATES.RUNNING
     startTime.value = Date.now() - elapsedTime.value
-    intervalId = setInterval(tick, 100)
+    intervalId = setInterval(activeTick, 100)
   }
 
   const reset = () => {
@@ -77,15 +80,16 @@ export function useBaseTimer() {
   return {
     // Estado
     state,
+    startTime,
     elapsedTime,
-    
+
     // Getters computados
     isRunning,
     isPaused,
     isIdle,
     isFinished,
     formattedTime,
-    
+
     // Métodos
     start,
     pause,

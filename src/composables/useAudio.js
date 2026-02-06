@@ -57,11 +57,28 @@ export function useAudio() {
     playBeep(400, 50)
   }
 
+  const playCountdownWarning = () => {
+    playBeep(500, 100)
+  }
+
+  const playCountdownGo = () => {
+    playBeep(900, 250)
+  }
+
+  const vibrate = (pattern = [50]) => {
+    if (navigator.vibrate) {
+      navigator.vibrate(pattern)
+    }
+  }
+
   return {
     setupAudio,
     playTimerEnd,
     playIntervalSwitch,
     playClick,
-    playBeep
+    playCountdownWarning,
+    playCountdownGo,
+    playBeep,
+    vibrate
   }
 }

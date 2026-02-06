@@ -92,11 +92,13 @@ const handleClick = () => {
 .base-btn--medium {
   padding: var(--spacing-3) var(--spacing-5);
   font-size: var(--font-size-base);
+  min-height: 44px;
 }
 
 .base-btn--large {
   padding: var(--spacing-4) var(--spacing-6);
   font-size: var(--font-size-lg);
+  min-height: 48px;
 }
 
 /* Variants */

@@ -264,13 +264,25 @@ p {
 
 /* Responsive Design */
 @media (max-width: 768px) {
+  :root {
+    --font-size-5xl: 3.5rem;
+    --font-size-4xl: 2.75rem;
+  }
+
   .main {
     padding: var(--spacing-4);
   }
-  
+
   .timers-container {
     grid-template-columns: 1fr;
     gap: var(--spacing-4);
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --font-size-5xl: 3rem;
+    --font-size-4xl: 2.5rem;
   }
 }
 

@@ -11,7 +11,7 @@ const props = defineProps({
 
 const emit = defineEmits(['update'])
 
-const { playIntervalSwitch, playTimerEnd } = useAudio()
+const { playIntervalSwitch, playTimerEnd, playCountdownWarning, playCountdownGo, vibrate } = useAudio()
 
 const interval = useIntervalTimer({
   workDuration: props.timer.workDuration,
@@ -19,13 +19,32 @@ const interval = useIntervalTimer({
   rounds: props.timer.rounds
 })
 
-// Sonidos
+// Sonidos de inicio y fin
 watch(() => interval.isRunning.value, (isRunning, wasRunning) => {
   if (isRunning && !wasRunning) playIntervalSwitch()
 })
 
 watch(() => interval.isFinished.value, (isFinished) => {
-  if (isFinished) playTimerEnd()
+  if (isFinished) {
+    playTimerEnd()
+    vibrate([100, 50, 100, 50, 200])
+  }
+})
+
+// Sonido de cambio de fase
+watch(() => interval.phase.value, (newPhase, oldPhase) => {
+  if (oldPhase && oldPhase !== 'idle' && newPhase !== 'idle') {
+    playCountdownGo()
+    vibrate([100, 50, 100])
+  }
+})
+
+// Aviso 3-2-1 con sonido y vibración
+watch(() => interval.countdownWarning.value, (warning) => {
+  if (warning > 0) {
+    playCountdownWarning()
+    vibrate([50])
+  }
 })
 
 const handleStart = () => {
@@ -65,17 +84,25 @@ const updateRounds = (rounds) => {
         {{ interval.phaseLabel.value }}
       </span>
     </div>
-    
-    <!-- Tiempo -->
-    <div :class="['timer-display', interval.state.value]">
-      {{ interval.formattedTime.value }}
+
+    <!-- Tiempo con overlay de warning -->
+    <div class="timer-wrapper">
+      <div :class="['timer-display', interval.state.value]">
+        {{ interval.formattedTime.value }}
+      </div>
+      <div
+        v-if="interval.countdownWarning.value > 0"
+        class="countdown-warning"
+      >
+        {{ interval.countdownWarning.value }}
+      </div>
     </div>
-    
+
     <!-- Progreso total -->
     <div v-if="!interval.isIdle.value" class="progress-container">
       <div class="progress-bar">
-        <div 
-          class="progress-fill" 
+        <div
+          class="progress-fill"
           :style="{ width: interval.totalProgress.value + '%' }"
         ></div>
       </div>
@@ -83,7 +110,7 @@ const updateRounds = (rounds) => {
         Ronda {{ interval.currentRound.value }} de {{ interval.totalRounds.value }}
       </span>
     </div>
-    
+
     <!-- Configuración (solo en idle) -->
     <div v-if="interval.isIdle.value" class="timer-config">
       <BaseInput
@@ -94,7 +121,7 @@ const updateRounds = (rounds) => {
         :min="5"
         :max="300"
       />
-      
+
       <BaseInput
         type="number"
         label="Descanso (seg)"
@@ -103,7 +130,7 @@ const updateRounds = (rounds) => {
         :min="5"
         :max="300"
       />
-      
+
       <BaseInput
         type="number"
         label="Rondas"
@@ -113,15 +140,15 @@ const updateRounds = (rounds) => {
         :max="50"
       />
     </div>
-    
+
     <div class="timer-controls">
-      <BaseButton 
-        variant="primary" 
+      <BaseButton
+        variant="primary"
         @click="handleStart"
       >
         {{ interval.isRunning.value ? '⏸️ Pausar' : (interval.isPaused.value ? '▶️ Continuar' : '▶️ Iniciar') }}
       </BaseButton>
-      
+
       <BaseButton @click="interval.reset">
         🔄 Reiniciar
       </BaseButton>
@@ -160,6 +187,10 @@ const updateRounds = (rounds) => {
   color: var(--color-success);
 }
 
+.timer-wrapper {
+  position: relative;
+}
+
 .timer-display {
   font-family: var(--font-mono);
   font-size: var(--font-size-5xl);
@@ -171,6 +202,34 @@ const updateRounds = (rounds) => {
 
 .timer-display.running {
   color: var(--color-primary);
+}
+
+.countdown-warning {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 6rem;
+  font-weight: 900;
+  color: var(--color-warning);
+  opacity: 0.85;
+  animation: warning-pulse 0.5s ease-out;
+  pointer-events: none;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes warning-pulse {
+  0% {
+    transform: translate(-50%, -50%) scale(1.5);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.85;
+  }
 }
 
 .progress-container {
@@ -218,7 +277,11 @@ const updateRounds = (rounds) => {
   .timer-display {
     font-size: var(--font-size-4xl);
   }
-  
+
+  .countdown-warning {
+    font-size: 4rem;
+  }
+
   .timer-config {
     grid-template-columns: 1fr;
   }
